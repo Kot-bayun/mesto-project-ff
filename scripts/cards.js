@@ -1,26 +1,26 @@
 const initialCards = [
     {
       name: "Москва",
-      link: "./images/moscow.jpg",
+      link: "./images/moscow-small.jpg",
     },
     {
       name: "Санкт-Петербург",
-      link: "./images/saint-petersburg.jpg",
+      link: "./images/saint-petersburg-small.jpg",
     },
     {
       name: "Липецкая область",
-      link: "./images/lipetskaya-oblast.jpg",
+      link: "./images/lipetskaya-oblast-small.jpg",
     },
     {
       name: "Зеленоградск",
-      link: "./images/zelenogradsk.jpg",
+      link: "./images/zelenogradsk-small.jpg",
     },
     {
       name: "Домбай",
-      link: "./images/dombay.jpg",
+      link: "./images/dombay-small.jpg",
     },
     {
       name: "Владивосток",
-      link: "./images/vladivostok.jpg",
+      link: "./images/vladivostok-small.jpg",
     }
 ];
