@@ -27,8 +27,6 @@ const popupImage = document.querySelector('.popup_type_image');
 const previewImage = popupImage.querySelector('.popup__image');
 const imageCaption = popupImage.querySelector('.popup__caption');
 
-const closeButtons = document.querySelectorAll('.popup__close'); 
-
 // Функция открытия попапа с картинкой 
 const openImage = (cardImage) => {
     openPopup(popupImage);
@@ -65,13 +63,12 @@ const handleFormEditSubmit = (evt) => {
 // Прикрепляем обработчик события "отправка формы" к попапу "Редактировать"
 formEdit.addEventListener('submit', handleFormEditSubmit);
 
-// Перебор всех попапов и  кнопок "Х", отслеживание клика по кнопке и закрытие попапа, прикрепляем обработчик события "закрытие по оверлей" и добавление анимации
+// Перебор всех попапов, поиск кнопки "Х" и отслеживание клика по ней, прикрепляем обработчик события "закрытие по оверлей" и добавление анимации
 popups.forEach((popup) => {
-    closeButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            closePopup(popup);
-        })
+    popup.querySelector('.popup__close').addEventListener('click', () => {
+        closePopup(popup);
     })
+    
     popup.addEventListener('mousedown', closePopupEnvironment);
     popup.classList.add('popup_is-animated');
 });
