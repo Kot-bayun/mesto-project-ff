@@ -2,12 +2,18 @@ import './pages/index.css';
 import {initialCards} from './components/cards.js'; 
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openPopup, closePopup, closePopupEnvironment} from './components/modal.js';
+import {enableValidation, clearValidation} from './components/validation.js';
+import {getUserInfo, getAllCards, editProfile, createNewCard, changeAvatar} from './components/api.js';
 
 // @todo: DOM узлы
 const popups = document.querySelectorAll('.popup');
 
+const profileImage = document.querySelector('.profile__image');
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
+const popupAvatar = document.querySelector('.popup_type_new-avatar');
+const formAvatar = document.forms['new-avatar'];
+const avatarInput = formAvatar.querySelector('.popup__input_type_avatar');
 
 const editButton = document.querySelector('.profile__edit-button');
 const popupEdit = document.querySelector('.popup_type_edit');
@@ -27,6 +33,34 @@ const popupImage = document.querySelector('.popup_type_image');
 const previewImage = popupImage.querySelector('.popup__image');
 const imageCaption = popupImage.querySelector('.popup__caption');
 
+const popupButton = document.querySelector('.popup__button');
+
+const validationConfig = {
+    formSelector: '.popup__form', 
+    inputSelector: '.popup__input', 
+    submitButtonSelector: '.popup__button', 
+    inactiveButtonClass: 'popup__button_disabled', 
+    inputErrorClass: 'popup__input_type_error', 
+    errorClass: 'popup__error_visible' 
+}
+
+// @todo: Вывести карточки на страницу
+Promise.all([getUserInfo(), getAllCards()])
+.then(([user, cards]) => {
+    profileTitle.textContent = user.name;
+    profileDescription.textContent = user.about;
+    profileImage.src = user.avatar;
+    const userId = user._id;
+ 
+    cards.forEach((cardData) => { 
+        const card = createCard(cardData, {deleteCard, userId, openImage, likeCard});  
+        initialCardsList.append(card); 
+    })
+})
+.catch((error) => {
+    console.log(error);
+});
+
 // Функция открытия попапа с картинкой 
 const openImage = (cardImage) => {
     openPopup(popupImage);
@@ -35,29 +69,61 @@ const openImage = (cardImage) => {
     imageCaption.textContent = cardImage.alt;
 }
 
-// @todo: Вывести карточки на страницу
-initialCards.forEach((cardData) => {
-    const card = createCard(cardData, {deleteCard, openImage, likeCard}); 
-    initialCardsList.append(card);
+// Отслеживание клика по аватару, очистка ошибок валидации, открытие попапа "Обновить аватар" и установка пустого значения
+profileImage.addEventListener('click', () => {
+    clearValidation(formAvatar, validationConfig);
+    openPopup(popupAvatar);
+
+    avatarInput.value = '';
 });
 
-// Отслеживание клика по кнопке, открытие попапа "Редактировать" и подтягивание значений, которые отображаются в профиле
+// Функция обновления аватара, сброс введенных данных и закрытие попапа "Обновить аватар"
+const handleFormAvatarSubmit = (evt) => {
+    evt.preventDefault();
+
+    saveLoading(true);
+
+    changeAvatar(avatarInput.value)
+    .then((result) => {
+        profileImage.style.backgroundImage = `url(${result.avatar})`;
+
+        formAvatar.reset();
+        closePopup(popupAvatar);
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// Прикрепляем обработчик события "отправка формы" к попапу "Обновить аватар"
+formAvatar.addEventListener('submit', handleFormAvatarSubmit);
+
+// Отслеживание клика по кнопке, очистка ошибок валидации, открытие попапа "Редактировать" и подтягивание значений, которые отображаются в профиле
 editButton.addEventListener('click', () => {
+    clearValidation(formEdit, validationConfig);
     openPopup(popupEdit);
-    
+        
     nameInput.value = profileTitle.textContent;
     jobInput.value = profileDescription.textContent;
 });
 
-// Функция обновления информации в профиле, сборс введенных данных и закрытие попапа "Редактировать"
+// Функция обновления информации в профиле, сброс введенных данных и закрытие попапа "Редактировать"
 const handleFormEditSubmit = (evt) => {
     evt.preventDefault();
 
+    saveLoading(true);
+    
+    editProfile()
+    .then(() => {
     profileTitle.textContent = nameInput.value;
     profileDescription.textContent = jobInput.value;
 
     formEdit.reset();
-    closePopup(popupEdit);
+    closePopup(popupEdit);    
+    })
+    .catch((error) => {
+        console.log(error);
+    }); 
 }
 
 // Прикрепляем обработчик события "отправка формы" к попапу "Редактировать"
@@ -73,25 +139,54 @@ popups.forEach((popup) => {
     popup.classList.add('popup_is-animated');
 });
 
-// Отслеживание клика по кнопке и открытие попапа "+"
+// Отслеживание клика по кнопке, очистка ошибок валидации, открытие попапа "+" и установка пустых значений
 addButton.addEventListener('click', () => {
+    clearValidation(formNewCard, validationConfig);
     openPopup(popupNewCard);
+    
+    titleInput.value = '';
+    linkInput.value = '';
 });
 
-// Функция создания и добавления новой карточки в начало контейнера, сборс введенных данных и закрытие попапа "+"
+// Функция создания новой карточки, сброс введенных данных и закрытие попапа "+"
 const handleFormNewCardSubmit = (evt) => {
     evt.preventDefault();
 
-    const nameNewCard = titleInput.value;
-    const linkNewCard = linkInput.value;
+    saveLoading(true);
 
-    const newCard = createCard({name: nameNewCard, link: linkNewCard}, {deleteCard, openImage, likeCard}); 
+    createNewCard(titleInput.value, linkInput.value)
+    .then((newCardData) => {
+        
+    const newCard = createCard(newCardData, {deleteCard, userId, openImage, likeCard});
 
     initialCardsList.prepend(newCard);
-
+        
     formNewCard.reset();
     closePopup(popupNewCard);
+    })
+    .catch((error) => {
+        console.log(error);
+    });
 }
 
 // Прикрепляем обработчик события "отправка формы" к попапу "+"
 formNewCard.addEventListener('submit', handleFormNewCardSubmit);
+
+// Функция-уведомление пользователя о процессе загрузки
+function saveLoading (isLoading) {
+    if (isLoading) {
+        popupButton.textContent = 'Сохранение...';
+    } else {
+        popupButton.textContent = 'Сохранить';
+    }
+}
+
+// Вызов функции enableValidation
+enableValidation({
+    formSelector: '.popup__form', 
+    inputSelector: '.popup__input', 
+    submitButtonSelector: '.popup__button', 
+    inactiveButtonClass: 'popup__button_disabled', 
+    inputErrorClass: 'popup__input_type_error', 
+    errorClass: 'popup__error_visible' 
+});
