@@ -33,8 +33,6 @@ const popupImage = document.querySelector('.popup_type_image');
 const previewImage = popupImage.querySelector('.popup__image');
 const imageCaption = popupImage.querySelector('.popup__caption');
 
-const popupButton = document.querySelector('.popup__button');
-
 const validationConfig = {
     formSelector: '.popup__form', 
     inputSelector: '.popup__input', 
@@ -81,7 +79,9 @@ profileImage.addEventListener('click', () => {
 const handleFormAvatarSubmit = (evt) => {
     evt.preventDefault();
 
-    saveLoading(true);
+    const popupButton = evt.submitter;
+
+    saveLoading(true, popupButton);
 
     changeAvatar(avatarInput.value)
     .then((result) => {
@@ -92,6 +92,9 @@ const handleFormAvatarSubmit = (evt) => {
     })
     .catch((error) => {
         console.log(error);
+    })
+    .finally(() => {
+        saveLoading(false, popupButton);;
     });
 }
 
@@ -111,7 +114,9 @@ editButton.addEventListener('click', () => {
 const handleFormEditSubmit = (evt) => {
     evt.preventDefault();
 
-    saveLoading(true);
+    const popupButton = evt.submitter;
+
+    saveLoading(true, popupButton);
     
     editProfile()
     .then(() => {
@@ -123,7 +128,10 @@ const handleFormEditSubmit = (evt) => {
     })
     .catch((error) => {
         console.log(error);
-    }); 
+    })
+    .finally(() => {
+        saveLoading(false, popupButton);;
+    });
 }
 
 // Прикрепляем обработчик события "отправка формы" к попапу "Редактировать"
@@ -152,13 +160,16 @@ addButton.addEventListener('click', () => {
 const handleFormNewCardSubmit = (evt) => {
     evt.preventDefault();
 
-    saveLoading(true);
+    const popupButton = evt.submitter;
+
+    saveLoading(true, popupButton);
 
     createNewCard(titleInput.value, linkInput.value)
     .then((newCardData) => {
-        
-    const newCard = createCard(newCardData, {deleteCard, userId, openImage, likeCard});
+    const userId = newCardData.owner._id;
 
+    const newCard = createCard(newCardData, {deleteCard, userId, openImage, likeCard});
+    
     initialCardsList.prepend(newCard);
         
     formNewCard.reset();
@@ -166,6 +177,9 @@ const handleFormNewCardSubmit = (evt) => {
     })
     .catch((error) => {
         console.log(error);
+    })
+    .finally(() => {
+        saveLoading(false, popupButton);;
     });
 }
 
@@ -173,7 +187,7 @@ const handleFormNewCardSubmit = (evt) => {
 formNewCard.addEventListener('submit', handleFormNewCardSubmit);
 
 // Функция-уведомление пользователя о процессе загрузки
-function saveLoading (isLoading) {
+const saveLoading = (isLoading, popupButton) => {
     if (isLoading) {
         popupButton.textContent = 'Сохранение...';
     } else {

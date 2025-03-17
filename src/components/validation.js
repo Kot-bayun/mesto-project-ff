@@ -33,8 +33,10 @@ const checkInputValidity = (popupFormElement, popupFormInput, validationConfig) 
 const toggleButtonState = (inputList, buttonElement, validationConfig) => {
     if (hasInvalidInput(inputList, validationConfig)) {
         buttonElement.classList.add(validationConfig.inactiveButtonClass);
+        buttonElement.disabled = true;
     } else {
         buttonElement.classList.remove(validationConfig.inactiveButtonClass);
+        buttonElement.disabled = false;
     }
 }
 
@@ -77,6 +79,7 @@ const clearValidation = (popupFormElement, validationConfig) => {
     inputList.forEach((popupFormInput) => {
         hideInputError(popupFormElement, popupFormInput, validationConfig);
         buttonElement.classList.add(validationConfig.inactiveButtonClass);
+        buttonElement.disabled = true;
     })
 }
 
