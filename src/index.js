@@ -47,7 +47,7 @@ Promise.all([getUserInfo(), getAllCards()])
 .then(([user, cards]) => {
     profileTitle.textContent = user.name;
     profileDescription.textContent = user.about;
-    profileImage.src = user.avatar;
+    profileImage.style.backgroundImage = user.avatar;
     const userId = user._id;
  
     cards.forEach((cardData) => { 
@@ -118,7 +118,7 @@ const handleFormEditSubmit = (evt) => {
 
     saveLoading(true, popupButton);
     
-    editProfile()
+    editProfile(nameInput.value, jobInput.value)
     .then(() => {
     profileTitle.textContent = nameInput.value;
     profileDescription.textContent = jobInput.value;

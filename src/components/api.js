@@ -31,14 +31,11 @@ const getAllCards = () => {
 }
 
 // Редактирование профиля 
-const editProfile = () => {
+const editProfile = (name, about) => {
     return fetch(`${config.baseUrl}/users/me`, {
         method: 'PATCH',
         headers: config.headers,
-        body: JSON.stringify({
-            name: 'Kascheyka',
-            about: 'Gold keeper'
-        })
+        body: JSON.stringify({name, about})
     })    
     .then(replyPromise)
 }

@@ -78,9 +78,10 @@ const clearValidation = (popupFormElement, validationConfig) => {
 
     inputList.forEach((popupFormInput) => {
         hideInputError(popupFormElement, popupFormInput, validationConfig);
-        buttonElement.classList.add(validationConfig.inactiveButtonClass);
-        buttonElement.disabled = true;
     })
+    
+    buttonElement.classList.add(validationConfig.inactiveButtonClass);
+    buttonElement.disabled = true;
 }
 
 export {enableValidation, clearValidation}
